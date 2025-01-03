@@ -11,9 +11,10 @@ public:
 	Baby();
 	virtual ~Baby();
 	
-	void ReadFile(int year);
+	bool ReadFile(int year);
 	string getRank(string gender, string name );
-	string** FindCommon();
+	void FindCommon();
+	string** getCommon();
 	string** Top10Unique(string gender);
 
 	void toString();
@@ -23,6 +24,7 @@ private:
 	int* maleNumbers;
 	string** femaleNames;
 	int* femaleNumbers;
+	string** commonNames;
 
 };
 

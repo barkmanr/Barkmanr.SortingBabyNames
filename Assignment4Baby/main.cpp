@@ -22,10 +22,16 @@ int main()
 	Baby* babys = new Baby();
 
 	int key;
-	cout << "what year would you like to search in? (2009-2021)" << endl;
-	cin >> key;
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	babys->ReadFile(key);
+	while (true) //Search proper years
+	{
+		cout << "what year would you like to search in? (2009-2021)" << endl;
+		cin >> key;
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		if (babys->ReadFile(key)) //read file
+		{
+			break;
+		}
+	}
 
 	string gender;
 	cout << "What is the gender? (male/m or female/f)" << endl;
@@ -43,7 +49,7 @@ int main()
 	getline(cin, temp);
 
 	cout << "Common names in that year" << endl;
-	string** common = babys->FindCommon();
+	string** common = babys->getCommon();
 	int i = 0;
 	while (common[i] != nullptr)
 	{
@@ -72,7 +78,6 @@ int main()
 
 	delete[] topm;
 	delete[] topf;
-	delete[] common;
 	delete babys;
 
 	//added to portfolio

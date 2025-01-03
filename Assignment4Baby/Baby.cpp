@@ -6,11 +6,13 @@ Baby::Baby()
 	maleNumbers = new int[1000];
 	femaleNames = new string*[1000];
 	femaleNumbers = new int[1000];
+	commonNames = new string*[1000];
 
 	for (int i = 0; i < 1000; i++)
 	{
 		maleNames[i] = nullptr;
 		femaleNames[i] = nullptr;
+		commonNames[i] = nullptr;
 	}
 }
 
@@ -32,22 +34,23 @@ Baby::~Baby()
 	delete[] maleNumbers;
 	delete[] femaleNames;
 	delete[] femaleNumbers;
+	delete[] commonNames;
 }
 
-void Baby::ReadFile(int year) 
+bool Baby::ReadFile(int year) //read the file of a given year and return completion status
 {
-	string txt = "";
-	string txt2 = "";
+	string txt = ""; //line of text from file
+	string txt2 = "";//item from line
 	int count = 0;
 
 	if(year >= 2009 && year <= 2021)
 	{
-		ifstream readFile("../Texts/babynamesranking" + to_string(year) + ".txt");
-		while(getline(readFile, txt))
+		ifstream readFile("../Texts/babynamesranking" + to_string(year) + ".txt"); //open file
+		while(getline(readFile, txt)) //read line of text
 		{
 			stringstream ss(txt);
-			vector<string> v;
-			while (getline(ss, txt2, '	'))
+			vector<string> v;//[Rank,MName,MNum,FName,FNum]
+			while (getline(ss, txt2, '	')) //spaces in text
 			{
 				v.push_back(txt2);
 			}
@@ -61,7 +64,7 @@ void Baby::ReadFile(int year)
 				getline(ms, sub, ',');
 				mfinal = mfinal + sub;
 			}
-			v[2] = mfinal;
+			v[2] = mfinal; //Removes the comma from the males number
 
 			string FN = v[4];
 			stringstream fs(FN);
@@ -72,30 +75,24 @@ void Baby::ReadFile(int year)
 				getline(fs, sub, ',');
 				mfinal2 = mfinal2 + sub;
 			}
-			v[4] = mfinal2;
+			v[4] = mfinal2; //Removes the comma from the females number
 
-			string* mname = new string();
-			*mname = v[1];
-			maleNames[count] = mname;
-
-			stringstream man(v[2]);
-			man >> maleNumbers[count];
-
-			string* fname = new string();
-			*fname = v[3];
-			femaleNames[count] = fname;
-
-			stringstream fan(v[4]);
-			fan >> femaleNumbers[count];
+			maleNames[count] = new string(v[1]);
+			maleNumbers[count] = stoi(v[2]);
+			femaleNames[count] = new string(v[3]);
+			femaleNumbers[count] = stoi(v[4]);
 
 			count++;
 		}
 
 		readFile.close();
+		FindCommon();
+		return true;
 	}
+	return false;
 }
 
-string Baby::getRank(string gender, string name)
+string Baby::getRank(string gender, string name) //go through list to find which rank given name is
 {
 	if (gender == "male" || gender == "m" || gender == "Male" || gender == "M") 
 	{
@@ -122,9 +119,8 @@ string Baby::getRank(string gender, string name)
 	return "Incorect gender input";
 }
 
-string** Baby::FindCommon() 
+void Baby::FindCommon() //see if any names match in both lists
 {
-	string** common = new string * [1000];
 	int count = 0;
 	for (int i = 0; i < 1000; i++)
 	{
@@ -132,15 +128,15 @@ string** Baby::FindCommon()
 		{
 			if (*maleNames[i] == *femaleNames[j]) 
 			{
-				common[count] = maleNames[i];
+				commonNames[count] = maleNames[i];
 				count++;
 				break;
 			}
 		}
 	}
-		common[count] = nullptr;
-	return common;
 }
+
+string** Baby::getCommon() { return commonNames; }
 
 void Baby::toString() 
 {
@@ -150,9 +146,8 @@ void Baby::toString()
 	}
 }
 
-string** Baby::Top10Unique(string gender) {
-
-	static string** common = FindCommon();
+string** Baby::Top10Unique(string gender) //given a gender check if the name is in top 10 and not in the other list
+{
 	string** top = new string * [10];
 	int count = 0;
 
@@ -162,9 +157,9 @@ string** Baby::Top10Unique(string gender) {
 		{
 			bool match = false;
 			int j = 0;
-			while (common[j] != nullptr)
+			while (commonNames[j] != nullptr)
 			{
-				if (maleNames[i] == common[j]) 
+				if (maleNames[i] == commonNames[j]) 
 				{
 					match = true;
 					break;
@@ -190,9 +185,9 @@ string** Baby::Top10Unique(string gender) {
 		{
 			bool match = false;
 			int j = 0;
-			while (common[j] != nullptr)
+			while (commonNames[j] != nullptr)
 			{
-				if (femaleNames[i] == common[j])
+				if (femaleNames[i] == commonNames[j])
 				{
 					match = true;
 					break;
